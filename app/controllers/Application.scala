@@ -22,23 +22,27 @@ class Application @Inject() (ws: WSClient) extends Controller {
   def index = Action.async {
     import org.joda.time._
     import org.joda.time.format.DateTimeFormat
-
-    import models.SunInfo
-
-    // Future.successful {
-    //   Ok(views.html.index(dateStr))
-    // }
-
     import models.SunInfo
 
     val responseF = ws.url("http://api.sunrise-sunset.org/json?" +
         "lat=-33.8830&lng=151.2167&formatted=0").get()
-    responseF.map { response =>
-        val json = response.json
-        val sunriseTimeStr = (json \ "results" \ "sunrise").as[String]
-        val sunsetTimeStr = (json \ "results" \ "sunset").as[String]
-        val sunInfo = SunInfo(sunriseTimeStr, sunsetTimeStr)
-        Ok(views.html.index(sunInfo))
+
+    val weatherResponseF = ws.url("http://api.openweathermap.org/data/2.5/" +
+        "weather?lat=-33.8830&lon=151.2167&units=metric").get()
+
+    for {
+      response <- responseF
+      weatherResponse <- weatherResponseF
+    } yield {
+      val weatherJson = weatherResponseF.json
+      val temperature = (json \ "main" \ "temp").as[Double]
+
+      val json = response.json
+      val sunriseTimeStr = (json \ "results" \ "sunrise").as[String]
+      val sunsetTimeStr = (json \ "results" \ "sunset").as[String]
+      val sunInfo = SunInfo(sunriseTimeStr, sunsetTimeStr)
+
+      Ok(views.html.index(sunInfo, temperature))
     }
   }
 
