@@ -20,16 +20,8 @@ class Application @Inject() (ws: WSClient) extends Controller {
    * a path of `/`.
    */
   def index = Action.async {
-    import java.util.Date
-    import java.text.SimpleDateFormat
-    import scala.concurrent.Future
-
-    val date = new Date()
-    val dateStr = new SimpleDateFormat().format(date)
-
-    // Future.successful {
-    //   Ok(views.html.index(dateStr))
-    // }
+    import org.joda.time._
+    import org.joda.time.format.DateTimeFormat
 
     import models.SunInfo
 
@@ -39,7 +31,16 @@ class Application @Inject() (ws: WSClient) extends Controller {
         val json = response.json
         val sunriseTimeStr = (json \ "results" \ "sunrise").as[String]
         val sunsetTimeStr = (json \ "results" \ "sunset").as[String]
-        val sunInfo = SunInfo(sunriseTimeStr, sunsetTimeStr)
+
+        val sunriseTime = DateTime.parse(sunriseTimeStr)
+        val sunsetTime = DateTime.parse(sunsetTimeStr)
+
+        val formatter = DateTimeFormat.forPattern("HH:mm:ss")
+                        .withZone(DateTimeZone.forID("Australia/Sydney"))
+
+        val sunInfo = SunInfo(formatter.print(sunriseTime),
+                              formatter.print(sunsetTime))
+
         Ok(views.html.index(sunInfo))
     }
   }
