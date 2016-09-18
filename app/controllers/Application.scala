@@ -25,22 +25,19 @@ class Application @Inject() (ws: WSClient) extends Controller {
 
     import models.SunInfo
 
+    // Future.successful {
+    //   Ok(views.html.index(dateStr))
+    // }
+
+    import models.SunInfo
+
     val responseF = ws.url("http://api.sunrise-sunset.org/json?" +
         "lat=-33.8830&lng=151.2167&formatted=0").get()
     responseF.map { response =>
         val json = response.json
         val sunriseTimeStr = (json \ "results" \ "sunrise").as[String]
         val sunsetTimeStr = (json \ "results" \ "sunset").as[String]
-
-        val sunriseTime = DateTime.parse(sunriseTimeStr)
-        val sunsetTime = DateTime.parse(sunsetTimeStr)
-
-        val formatter = DateTimeFormat.forPattern("HH:mm:ss")
-                        .withZone(DateTimeZone.forID("Australia/Sydney"))
-
-        val sunInfo = SunInfo(formatter.print(sunriseTime),
-                              formatter.print(sunsetTime))
-
+        val sunInfo = SunInfo(sunriseTimeStr, sunsetTimeStr)
         Ok(views.html.index(sunInfo))
     }
   }
