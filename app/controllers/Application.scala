@@ -28,14 +28,15 @@ class Application @Inject() (ws: WSClient) extends Controller {
         "lat=-33.8830&lng=151.2167&formatted=0").get()
 
     val weatherResponseF = ws.url("http://api.openweathermap.org/data/2.5/" +
-        "weather?lat=-33.8830&lon=151.2167&units=metric").get()
+        "weather?lat=-33.8830&lon=151.2167&units=metric" +
+        "&APPID=c10d246c7bbf1e228c6c0c9bfbb44760").get()
 
     for {
       response <- responseF
       weatherResponse <- weatherResponseF
     } yield {
-      val weatherJson = weatherResponseF.json
-      val temperature = (json \ "main" \ "temp").as[Double]
+      val weatherJson = weatherResponse.json
+      val temperature = (weatherJson \ "main" \ "temp").as[Double]
 
       val json = response.json
       val sunriseTimeStr = (json \ "results" \ "sunrise").as[String]
