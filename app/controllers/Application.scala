@@ -3,15 +3,19 @@ package controllers
 import javax.inject._
 import play.api._
 import play.api.mvc._
-import play.api.libs.ws._
-import play.api.Play.current
+import services._
 import scala.concurrent.ExecutionContext.Implicits.global
+import play.api.libs.ws._
 
 /**
  * This controller creates an `Action` to handle HTTP requests to the
  * application's home page.
  */
 class Application @Inject() (ws: WSClient) extends Controller {
+
+
+  val sunService = new SunService(ws)
+  val weatherService = new WeatherService(ws)
 
   /**
    * Create an Action to render an HTML page with a welcome message.
@@ -20,31 +24,19 @@ class Application @Inject() (ws: WSClient) extends Controller {
    * a path of `/`.
    */
   def index = Action.async {
-    import org.joda.time._
-    import org.joda.time.format.DateTimeFormat
-    import models.SunInfo
+    val lat = -33.8830
+    val lon = 151.2167
 
-    val responseF = ws.url("http://api.sunrise-sunset.org/json?" +
-        "lat=-33.8830&lng=151.2167&formatted=0").get()
-
-    val weatherResponseF = ws.url("http://api.openweathermap.org/data/2.5/" +
-        "weather?lat=-33.8830&lon=151.2167&units=metric" +
-        "&APPID=c10d246c7bbf1e228c6c0c9bfbb44760").get()
+    val sunInfoF = sunService.getSunInfo(lat, lon)
+    val temperatureF = weatherService.getTemperature(lat, lon)
 
     for {
-      response <- responseF
-      weatherResponse <- weatherResponseF
+      sunInfo <- sunInfoF
+      temperature <- temperatureF
     } yield {
-      val weatherJson = weatherResponse.json
-      val temperature = (weatherJson \ "main" \ "temp").as[Double]
-
-      val json = response.json
-      val sunriseTimeStr = (json \ "results" \ "sunrise").as[String]
-      val sunsetTimeStr = (json \ "results" \ "sunset").as[String]
-      val sunInfo = SunInfo(sunriseTimeStr, sunsetTimeStr)
-
       Ok(views.html.index(sunInfo, temperature))
     }
+
   }
 
 }
