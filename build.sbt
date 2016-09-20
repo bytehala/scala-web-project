@@ -10,7 +10,9 @@ libraryDependencies ++= Seq(
   jdbc,
   cache,
   ws,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test
+  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test,
+  "com.softwaremill.macwire" %% "macros" % "2.2.0" % "provided",
+  "com.softwaremill.macwire" %% "util" % "2.2.0"
 )
 
 pipelineStages := Seq(digest)
