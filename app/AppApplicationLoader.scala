@@ -5,6 +5,8 @@ import play.api.routing.Router
 import router.Routes
 import com.softwaremill.macwire._
 import play.api.libs.ws.ahc.AhcWSComponents
+import services.SunService
+import services.WeatherService
 
 class AppApplicationLoader extends ApplicationLoader {
 
@@ -20,5 +22,7 @@ trait AppComponents extends BuiltInComponents with AhcWSComponents {
   lazy val assets: Assets = wire[Assets]
   lazy val prefix: String = "/"
   lazy val router: Router = wire[Routes]
+  lazy val sunService = wire[SunService]
+  lazy val weatherService = wire[WeatherService]
   lazy val applicationController = wire[Application]
 }
