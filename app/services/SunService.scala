@@ -7,8 +7,9 @@ import org.joda.time.format.DateTimeFormat
 import play.api.libs.ws._
 import models.SunInfo
 import scala.concurrent.ExecutionContext.Implicits.global
+import javax.inject._
 
-class SunService (ws: WSClient) {
+class SunService @Inject() (ws: WSClient) {
   def getSunInfo(lat: Double, lon: Double): Future[SunInfo] = {
     val responseF = ws.url("http://api.sunrise-sunset.org/json?" +
         s"lat=$lat&lng=$lon&formatted=0").get()

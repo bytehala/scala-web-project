@@ -4,8 +4,9 @@ import play.api.Play.current
 import play.api.libs.ws._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import javax.inject._
 
-class WeatherService (ws: WSClient) {
+class WeatherService @Inject() (ws: WSClient) {
   def getTemperature(lat: Double, lon: Double): Future[Double] = {
 
     val url = "http://api.openweathermap.org/data/2.5/" +

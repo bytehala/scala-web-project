@@ -11,7 +11,7 @@ import play.api.libs.ws._
  * This controller creates an `Action` to handle HTTP requests to the
  * application's home page.
  */
-class Application (sunService: SunService, weatherService: WeatherService) extends Controller {
+class Application @Inject() (sunService: SunService, weatherService: WeatherService) extends Controller {
 
   /**
    * Create an Action to render an HTML page with a welcome message.
