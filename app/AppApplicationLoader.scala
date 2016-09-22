@@ -7,6 +7,7 @@ import com.softwaremill.macwire._
 import play.api.libs.ws.ahc.AhcWSComponents
 import services.SunService
 import services.WeatherService
+import scala.concurrent.Future
 
 class AppApplicationLoader extends ApplicationLoader {
 
@@ -25,4 +26,13 @@ trait AppComponents extends BuiltInComponents with AhcWSComponents {
   lazy val sunService = wire[SunService]
   lazy val weatherService = wire[WeatherService]
   lazy val applicationController = wire[Application]
+
+  val onStart = {
+    Logger.info("The app is about to start")
+  }
+
+  applicationLifecycle.addStopHook {
+    () => Logger.info("The app is about to stop")
+    Future.successful(Unit)
+  }
 }
