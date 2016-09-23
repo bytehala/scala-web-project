@@ -8,6 +8,11 @@ import play.api.libs.ws.ahc.AhcWSComponents
 import services.SunService
 import services.WeatherService
 import scala.concurrent.Future
+import akka.actor.Props
+import actors.StatsActor
+import actors.StatsActor.Ping
+import play.api.mvc.Filter
+import filters.StatsFilter
 
 class AppApplicationLoader extends ApplicationLoader {
 
@@ -27,12 +32,21 @@ trait AppComponents extends BuiltInComponents with AhcWSComponents {
   lazy val weatherService = wire[WeatherService]
   lazy val applicationController = wire[Application]
 
+  lazy val statsFilter: Filter = wire[StatsFilter]
+  override lazy val httpFilters = Seq(statsFilter)
+
+
   val onStart = {
     Logger.info("The app is about to start")
+    statsActor ! Ping
   }
 
   applicationLifecycle.addStopHook {
     () => Logger.info("The app is about to stop")
     Future.successful(Unit)
   }
+
+  lazy val statsActor = actorSystem.actorOf(
+    Props(wire[StatsActor]), StatsActor.name
+  )
 }
